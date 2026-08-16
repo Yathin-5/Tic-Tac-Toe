@@ -106,8 +106,8 @@ function botMove() {
     statusPanel.textContent = "Your turn (X)";
 }
 
-function getAvailableMoves() {
-    return board.map((val, idx) => val === "" ? idx : null).filter(val => val !== null);
+function getAvailableMoves(tempBoard = board) {
+    return tempBoard.map((val, idx) => val === "" ? idx : null).filter(val => val !== null);
 }
 
 function getRandomMove() {
@@ -121,14 +121,14 @@ function getMediumMove() {
     // 1. Can bot win in this move?
     for (let move of available) {
         board[move] = "O";
-        if (checkSimulatedWin("O")) { board[move] = ""; return move; }
+        if (checkSimulatedWin("O", board)) { board[move] = ""; return move; }
         board[move] = "";
     }
 
     // 2. Can human win in their next move? Block them.
     for (let move of available) {
         board[move] = "X";
-        if (checkSimulatedWin("X")) { board[move] = ""; return move; }
+        if (checkSimulatedWin("X", board)) { board[move] = ""; return move; }
         board[move] = "";
     }
 
@@ -136,8 +136,8 @@ function getMediumMove() {
     return getRandomMove();
 }
 
-function checkSimulatedWin(player) {
-    return winConditions.some(cond => board[cond[0]] === player && board[cond[1]] === player && board[cond[2]] === player);
+function checkSimulatedWin(player, tempBoard = board) {
+    return winConditions.some(cond => tempBoard[cond[0]] === player && tempBoard[cond[1]] === player && tempBoard[cond[2]] === player);
 }
 
 // --- MINIMAX CORE (HARD MODE) ---
@@ -161,11 +161,11 @@ function getBestMove() {
 }
 
 function minimax(tempBoard, depth, isMaximizing) {
-    if (checkSimulatedWin("O")) return 10 - depth;
-    if (checkSimulatedWin("X")) return depth - 10;
+    if (checkSimulatedWin("O", tempBoard)) return 10 - depth;
+    if (checkSimulatedWin("X", tempBoard)) return depth - 10;
     if (!tempBoard.includes("")) return 0;
 
-    const available = getAvailableMoves();
+    const available = getAvailableMoves(tempBoard);
 
     if (isMaximizing) {
         let bestScore = -Infinity;
